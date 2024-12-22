@@ -1,1 +1,49 @@
+public class AmountDistributionHandler {  
 
+    public static void amountDist(List<Appointment__c> listApp) {  
+        // List to hold updated records for bulk update  
+        List<Appointment__c> updatedAppointments = new List<Appointment__c>();  
+
+        // Loop through the Appointment records  
+        for(Appointment__c app : listApp) {  
+            // Use Boolean.valueOf() for clearer boolean handling  
+            Boolean maintenance = Boolean.valueOf(app.Maintenance_service__c);  
+            Boolean repairs = Boolean.valueOf(app.Repairs__c);  
+            Boolean replacementParts = Boolean.valueOf(app.Replacement_Parts__c);  
+
+            // Set the Service_Amount__c based on service flags  
+            if (maintenance && repairs && replacementParts) {  
+                app.Service_Amount__c = 10000;  
+            } else if (maintenance && repairs) {  
+                app.Service_Amount__c = 5000;    
+            } else if (maintenance && replacementParts) {  
+                app.Service_Amount__c = 8000;    
+            } else if (repairs && replacementParts) {  
+                app.Service_Amount__c = 7000;  
+            } else if (maintenance) {  
+                app.Service_Amount__c = 2000;  
+            } else if (repairs) {  
+                app.Service_Amount__c = 3000;  
+            } else if (replacementParts) {  
+                app.Service_Amount__c = 5000;  
+            } else {  
+                app.Service_Amount__c = 0; // Setting default amount when no services are selected  
+            }  
+
+            // Add the updated record to the list for bulk update  
+            updatedAppointments.add(app);  
+        }  
+
+        // Perform a DML operation to update records only if there are records to update  
+        if(!updatedAppointments.isEmpty()) {  
+            try {  
+                update updatedAppointments; // Bulk update  
+                System.debug('Successfully updated ' + updatedAppointments.size() + ' Appointment records.');  
+            } catch (DmlException e) {  
+                System.debug('Error occurred while updating Appointment records: ' + e.getMessage());  
+            }  
+        } else {  
+            System.debug('No Appointment records were updated.');  
+        }  
+    }  
+}
